@@ -1,131 +1,39 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>SwarmAid Demo</title>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SwarmAid</title>
 
-  <!-- Leaflet CSS & JS -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <!-- Leaflet CSS -->
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet/dist/leaflet.css"
+  />
 
-  <style>
-    body, html { margin: 0; padding: 0; height: 100%; }
-    #map { height: 100%; }
-    #controls {
-      position: absolute;
-      top: 10px; left: 10px;
-      background: white;
-      padding: 10px;
-      border-radius: 8px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-      font-family: Arial, sans-serif;
-    }
-    button {
-      margin-top: 5px;
-      padding: 5px 10px;
-      cursor: pointer;
-      border: none;
-      border-radius: 6px;
-      background: #4CAF50;
-      color: white;
-    }
-    button:hover { background: #45a049; }
-  </style>
+  <!-- Custom Styles -->
+  <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
-  <div id="map"></div>
+  <!-- Header -->
+  <header>
+    <h1>🐜 SwarmAid</h1>
+    <p>Inspired by ants, built for disaster relief</p>
+  </header>
+
+  <!-- Controls -->
   <div id="controls">
-    <h3>🐜 SwarmAid</h3>
-    <p>Click on the map to add shelters (red).</p>
-    <label>Number of Volunteers: 
-      <input type="number" id="volunteers" value="10" min="1" style="width:60px;">
-    </label><br>
-    <button onclick="dispatchSwarm()">Dispatch Swarm</button>
+    <button id="add-shelter">➕ Add Shelter</button>
+    <button id="dispatch">🚚 Dispatch Volunteers</button>
+    <p id="status">No swarm dispatched yet.</p>
   </div>
 
-  <script>
-    // 1. Initialize the map (Sydney as default center)
-    const map = L.map('map').setView([-33.8688, 151.2093], 13);
+  <!-- Map -->
+  <div id="map"></div>
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; OpenStreetMap contributors'
-    }).addTo(map);
-
-    // 2. Depot (where volunteers start)
-    const depot = [-33.868, 151.209];
-    L.marker(depot).addTo(map).bindPopup("Depot: Volunteer Base");
-
-    // 3. Shelters
-    const shelters = [];
-    map.on("click", function(e) {
-      const marker = L.circleMarker(e.latlng, {
-        radius: 8,
-        color: "red",
-        fillColor: "red",
-        fillOpacity: 0.9
-      }).addTo(map).bindPopup("Shelter (needs aid)");
-      shelters.push({ coords: e.latlng, marker, needs: 5, received: 0 });
-    });
-
-    // 4. Volunteers
-    let volunteers = [];
-
-    function spawnVolunteers(num) {
-      volunteers = [];
-      for (let i = 0; i < num; i++) {
-        const marker = L.circleMarker(depot, {
-          radius: 5,
-          color: "green",
-          fillColor: "green",
-          fillOpacity: 1
-        }).addTo(map);
-        const target = shelters[i % shelters.length]; // assign evenly
-        volunteers.push({ marker, target, arrived: false });
-      }
-    }
-
-    // 5. Animate movement
-    function moveVolunteers() {
-      volunteers.forEach(v => {
-        if (v.arrived) return;
-        const current = v.marker.getLatLng();
-        const target = v.target.coords;
-
-        const lat = current.lat + (target.lat - current.lat) * 0.02;
-        const lng = current.lng + (target.lng - current.lng) * 0.02;
-
-        v.marker.setLatLng([lat, lng]);
-
-        if (map.distance([lat, lng], target) < 15) {
-          v.arrived = true;
-          v.marker.setStyle({ color: "blue", fillColor: "blue" });
-          v.marker.bindPopup("Delivered Aid").openPopup();
-
-          // Update shelter status
-          v.target.received++;
-          if (v.target.received >= v.target.needs) {
-            v.target.marker.setStyle({ color: "green", fillColor: "green" });
-            v.target.marker.bindPopup("Shelter: Aid Fulfilled");
-          }
-        }
-      });
-
-      if (volunteers.some(v => !v.arrived)) {
-        requestAnimationFrame(moveVolunteers);
-      }
-    }
-
-    // 6. Dispatch function
-    function dispatchSwarm() {
-      if (shelters.length === 0) {
-        alert("Please add at least one shelter by clicking on the map.");
-        return;
-      }
-      const num = parseInt(document.getElementById("volunteers").value) || 5;
-      spawnVolunteers(num);
-      moveVolunteers();
-    }
-  </script>
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <!-- App Logic -->
+  <script src="js/app.js" defer></script>
 </body>
 </html>
