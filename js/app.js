@@ -13,8 +13,22 @@ L.marker(depot).addTo(map).bindPopup("Depot: Volunteer Base");
 // 4. Shelters array
 const shelters = [];
 
-// 5. Add shelter on map click
+// 5. Volunteers (ants) array
+let volunteers = [];
+
+// 6. Flag for adding shelter
+let addingShelter = false;
+
+// 7. Add Shelter button behavior
+document.getElementById("add-shelter").addEventListener("click", () => {
+  addingShelter = true;
+  alert("Click on the map to place a shelter!");
+});
+
+// 8. Map click handler for placing shelter
 map.on('click', function(e) {
+  if (!addingShelter) return;
+
   const marker = L.circleMarker(e.latlng, {
     radius: 8,
     color: "red",
@@ -25,33 +39,36 @@ map.on('click', function(e) {
   shelters.push({
     coords: e.latlng,
     marker: marker,
-    needs: 5,       // number of volunteers required
-    received: 0     // volunteers delivered
+    needs: 5,       // volunteers needed
+    received: 0     // aid received
   });
+
+  addingShelter = false;
 });
 
-// 6. Volunteers (ants) array
-let volunteers = [];
-
-// 7. Spawn ants (variable size = amount of aid)
+// 9. Function to spawn ants with variable size
 function spawnAnts(num) {
   volunteers = [];
-  for (let i = 0; i < num; i++) {
-    const aidAmount = Math.ceil(Math.random() * 3); // 1–3 units of aid per ant
 
-    const marker = L.circleMarker(depot, {
-      radius: 4 + aidAmount,       // bigger radius = more aid
-      color: "#3b2e2e",            // ant color
-      fillColor: "#3b2e2e",
-      fillOpacity: 1
-    }).addTo(map);
+  for (let i = 0; i < num; i++) {
+    const aidAmount = Math.ceil(Math.random() * 3); // 1-3 units of aid
+    const size = 10 + aidAmount * 4; // bigger ants for more aid
+
+    const antIcon = L.icon({
+      iconUrl: 'js/ant-icon.jpg',  // make sure path is correct
+      iconSize: [size, size],
+      iconAnchor: [size / 2, size / 2],
+      popupAnchor: [0, -size / 2]
+    });
+
+    const marker = L.marker(depot, { icon: antIcon }).addTo(map);
 
     const target = shelters[i % shelters.length]; // evenly assign shelters
     volunteers.push({ marker, target, arrived: false, aid: aidAmount });
   }
 }
 
-// 8. Animate ants with slight wiggle
+// 10. Animate ants with wiggle movement
 function moveAnts() {
   volunteers.forEach(v => {
     if (v.arrived) return;
@@ -59,20 +76,17 @@ function moveAnts() {
     const current = v.marker.getLatLng();
     const target = v.target.coords;
 
-    // Linear interpolation toward target
     let lat = current.lat + (target.lat - current.lat) * 0.02;
     let lng = current.lng + (target.lng - current.lng) * 0.02;
 
-    // Small random wiggle for ant-like movement
+    // Add small random wiggle
     lat += (Math.random() - 0.5) * 0.0005;
     lng += (Math.random() - 0.5) * 0.0005;
 
     v.marker.setLatLng([lat, lng]);
 
-    // Check if arrived
     if (map.distance([lat, lng], target) < 15) {
       v.arrived = true;
-      v.marker.setStyle({ color: "#555", fillColor: "#555" });
       v.marker.bindPopup(`Delivered ${v.aid} aid`).openPopup();
 
       // Update shelter
@@ -84,18 +98,17 @@ function moveAnts() {
     }
   });
 
-  // Continue animation if any ants remain
   if (volunteers.some(v => !v.arrived)) {
     requestAnimationFrame(moveAnts);
   } else {
-    document.getElementById("status").textContent = "✅ All volunteers dispatched!";
+    document.getElementById("status").textContent = "✅ All ants dispatched!";
   }
 }
 
-// 9. Dispatch button listener
+// 11. Dispatch button listener
 document.getElementById("dispatch").addEventListener("click", function() {
   if (shelters.length === 0) {
-    alert("Please add at least one shelter by clicking on the map.");
+    alert("Please add at least one shelter first!");
     return;
   }
 
