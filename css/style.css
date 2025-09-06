@@ -1,0 +1,75 @@
+/* Reset default margins/padding */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Full screen map */
+html, body {
+  height: 100%;
+  font-family: Arial, sans-serif;
+}
+
+#map {
+  height: 100%;
+  width: 100%;
+  position: relative;
+  z-index: 1;
+}
+
+/* Header */
+header {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(255, 255, 255, 0.9);
+  padding: 8px 16px;
+  border-radius: 8px;
+  z-index: 1000;
+  text-align: center;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+
+/* Controls panel */
+#controls {
+  position: absolute;
+  top: 80px;
+  left: 10px;
+  background: rgba(255, 255, 255, 0.9);
+  padding: 12px;
+  border-radius: 8px;
+  z-index: 1000;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+
+#controls button {
+  display: block;
+  width: 100%;
+  margin: 5px 0;
+  padding: 8px;
+  font-size: 14px;
+  font-weight: bold;
+  border: none;
+  border-radius: 6px;
+  background-color: #4CAF50;
+  color: white;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+#controls button:hover {
+  background-color: #45a049;
+}
+
+#controls p {
+  margin-top: 8px;
+  font-size: 14px;
+}
+
+/* Leaflet popups z-index fix */
+.leaflet-popup-content-wrapper, 
+.leaflet-popup-tip {
+  z-index: 10000 !important;
+}
