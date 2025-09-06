@@ -55,7 +55,7 @@ function spawnAnts(num) {
     const size = 10 + aidAmount * 4; // bigger ants for more aid
 
     const antIcon = L.icon({
-      iconUrl: 'assets/ant-icon.jpg',
+      iconUrl: 'js/ant-icon.jpg',
       iconSize: [size, size],
       iconAnchor: [size / 2, size / 2],
       popupAnchor: [0, -size / 2]
@@ -117,4 +117,5 @@ document.getElementById("dispatch").addEventListener("click", function() {
   spawnAnts(numVolunteers);
   moveAnts();
 });
+
 
